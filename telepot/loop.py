@@ -64,8 +64,11 @@ class GetUpdatesLoop(RunForeverAsThread):
 
                 # No sort. Trust server to give messages in correct order.
                 for update in result:
-                    self._update_handler(update)
-                    offset = update['update_id'] + 1
+                    try:
+                        self._update_handler(update)
+                        offset = update['update_id'] + 1
+                    except:
+                        pass
 
             except exception.BadHTTPResponse as e:
                 traceback.print_exc()
@@ -100,16 +103,19 @@ def _dictify27(data):
 _dictify = _dictify3 if sys.version_info >= (3,) else _dictify27
 
 def _extract_message(update):
-    key = _find_first_key(update, ['message',
-                                   'edited_message',
-                                   'channel_post',
-                                   'edited_channel_post',
-                                   'callback_query',
-                                   'inline_query',
-                                   'chosen_inline_result',
-                                   'shipping_query',
-                                   'pre_checkout_query'])
-    return key, update[key]
+    try:
+        key = _find_first_key(update, ['message',
+                                       'edited_message',
+                                       'channel_post',
+                                       'edited_channel_post',
+                                       'callback_query',
+                                       'inline_query',
+                                       'chosen_inline_result',
+                                       'shipping_query',
+                                       'pre_checkout_query'])
+        return key, update[key]
+    except:
+        pass
 
 def _infer_handler_function(bot, h):
     if h is None:
